@@ -1,5 +1,14 @@
+# Ansible controller
+![](images/image1.png)
+- Ansible: Configuration management
+- Jenkins: CI/CD
+- Vagrant: For dev-env tools
+- AWS: Cloud formation AWS
 
-# Ansible controller and agent nodes set up guide
+- Ansible is useful as it automates configuration of VMs
+  - A good example would be IP address changes, it'll automatically go around and replace IP addresses in configuration files should they update
+
+## Ansible controller and agent nodes set up guide
 - Clone this repo and run `vagrant up`
 - `(double check syntax/intendation)`
 
