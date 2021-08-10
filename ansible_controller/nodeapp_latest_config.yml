@@ -9,10 +9,12 @@
 
 # admin access
   become: true
+  
 # Variables we're going to be using multiple times
   vars:
       git_repo_url: https://github.com/monotiller/engineering89_multi_server_automation.git
       repo_path: /app
+      nginx_default: /etc/nginx/sites-available/default
 
   tasks: 
   - name: Install nginx
@@ -20,18 +22,18 @@
 
   - name: Delete current nginx default
     file:
-      path: /etc/nginx/sites-available/default
+      path: {{ nginx_default }}
       state: absent
   
   - name: Create nginx default
     file:
-      path: /etc/nginx/sites-available/default
+      path: {{ nginx_default }}
       state: touch
       mode: 0644
   
   - name: Change nginx default
     blockinfile:
-      path: /etc/nginx/sites-available/default
+      path: {{ nginx_default }}
       block: |
         server {
           listen 80;
@@ -68,7 +70,7 @@
       dest: "{{ repo_path }}"
       accept_hostkey: yes
 
-# Configuration so we can connect to the databasre
+# Configuration so we can connect to the database
   - name: Exporting the DB_HOST
     become_user: root
     shell: |
@@ -76,10 +78,12 @@
       export DB_HOST=mongodb://192.168.10.150:27017/posts >> ~/.bashrc
   
   - name: Installing node prerequisites and seeding from the database
+    shell: |
       cd {{ repo_path }}/app
       npm install
       node seeds/seed.js
 
   - name: Starting the app
+    shell: |
       pm2 kill
       pm2 start app.js

@@ -9,25 +9,30 @@
 # admin access
   become: true
 
+# Variables we're going to be using multiple times
+  vars:
+      mongodb_default: /etc/mongodb.conf
+
+
   tasks:
   - name: Install MongoDB
     apt: pkg=mongodb state=present
 
   - name: Delete MongoDB configuration file
     file:
-      path: /etc/mongodb.conf
+      path: {{ mongodb_default }}
       state: absent
 
   - name: Create MongoDB configuration file
     file:
-      path: /etc/mongodb.conf
+      path: {{ mongodb_default }}
       state: touch
       mode: u=rw,g=r,o=r
 
 
   - name: Addding in our MongoDB configuration
     blockinfile:
-      path: /etc/mongodb.conf
+      path: {{ mongodb_default }}
       block: |
         # mongodb.conf
         storage:
