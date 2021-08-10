@@ -1,0 +1,85 @@
+# On the web server we would like to install nodejs with required dependencies so we could launch the nodeapp on web server's IP:3000
+# Then moving on to configuring reverse proxy with nginx so we could launch the app on port 80 instead of 3000
+---
+# name of the hosts - hosts is to define the name of your host of all
+- hosts : web
+
+# find the facts about the host
+  gather_facts : yes
+
+# admin access
+  become: true
+# Variables we're going to be using multiple times
+  vars:
+      git_repo_url: https://github.com/monotiller/engineering89_multi_server_automation.git
+      repo_path: /app
+
+  tasks: 
+  - name: Install nginx
+    apt: pkg=nginx state=present update_cache=yes
+
+  - name: Delete current nginx default
+    file:
+      path: /etc/nginx/sites-available/default
+      state: absent
+  
+  - name: Create nginx default
+    file:
+      path: /etc/nginx/sites-available/default
+      state: touch
+      mode: 0644
+  
+  - name: Change nginx default
+    blockinfile:
+      path: /etc/nginx/sites-available/default
+      block: |
+        server {
+          listen 80;
+          server_name _;
+          location / {
+            include proxy_params;
+            proxy_pass http://192.168.33.10:3000;
+            proxy_http_version 1.1;
+            proxy_set_header Upgrade $http_upgrade;
+            proxy_set_header Connection 'upgrade';
+            proxy_set_header Host $host;
+            proxy_cache_bypass $http_upgrade;
+          }
+        }
+
+  - name: Restart nginx
+    service:
+      name: nginx
+      state: restarted
+
+  - name: Install nodejs and npm
+    apt: pkg=nodejs state=present update_cache=yes
+    apt: pkg=npm state=present update_cache=yes
+
+  - name: Install pm2  
+    npm:
+      name: pm2
+      global: yes
+
+# Copy the app code to web server (you clone it from your repo, copy from your controller to web or os to web)
+  - name: Cloning repository
+    git:
+      repo: "{{ git_repo_url }}"
+      dest: "{{ repo_path }}"
+      accept_hostkey: yes
+
+# Configuration so we can connect to the databasre
+  - name: Exporting the DB_HOST
+    become_user: root
+    shell: |
+      pm2 kill
+      export DB_HOST=mongodb://192.168.10.150:27017/posts >> ~/.bashrc
+  
+  - name: Installing node prerequisites and seeding from the database
+      cd {{ repo_path }}/app
+      npm install
+      node seeds/seed.js
+
+  - name: Starting the app
+      pm2 kill
+      pm2 start app.js

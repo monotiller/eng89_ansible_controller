@@ -1,0 +1,55 @@
+# This is a playbook to install and set up MongoDB (192.168.33.11)
+---
+# name of the hosts - hosts is to define the name of your host of all
+- hosts: db
+
+# find the facts about the host
+  gather_facts: yes
+
+# admin access
+  become: true
+
+  tasks:
+  - name: Install MongoDB
+    apt: pkg=mongodb state=present
+
+  - name: Delete MongoDB configuration file
+    file:
+      path: /etc/mongodb.conf
+      state: absent
+
+  - name: Create MongoDB configuration file
+    file:
+      path: /etc/mongodb.conf
+      state: touch
+      mode: u=rw,g=r,o=r
+
+
+  - name: Addding in our MongoDB configuration
+    blockinfile:
+      path: /etc/mongodb.conf
+      block: |
+        # mongodb.conf
+        storage:
+          dbPath: /var/lib/mongodb
+          journal:
+            enabled: true
+        systemLog:
+          destination: file
+          logAppend: true
+          path: /var/log/mongodb/mongod.log
+        net:
+          port: 27017
+          bindIp: 0.0.0.0
+
+  - name: Restart MongoDB
+    become: true
+    shell: systemctl restart mongodb
+
+  - name: enable MongoDB
+    become: true
+    shell: systemctl enable mongodb
+
+  - name: start MongoDB
+    become: true
+    shell: systemctl start mongodb

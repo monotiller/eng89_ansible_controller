@@ -17,7 +17,7 @@
 
 - **You may need to reinstall plugins or dependencies required depending on the OS you are using.**
 
-```vagrant 
+```ruby 
 # -*- mode: ruby -*-
 # vi: set ft=ruby :
 
