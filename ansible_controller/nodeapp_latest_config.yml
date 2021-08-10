@@ -9,7 +9,7 @@
 
 # admin access
   become: true
-  
+
 # Variables we're going to be using multiple times
   vars:
       git_repo_url: https://github.com/monotiller/engineering89_multi_server_automation.git
@@ -75,7 +75,7 @@
     become_user: root
     shell: |
       pm2 kill
-      export DB_HOST=mongodb://192.168.10.150:27017/posts >> ~/.bashrc
+      export DB_HOST=mongodb://192.168.33.11:27017/posts >> ~/.bashrc
   
   - name: Installing node prerequisites and seeding from the database
     shell: |
