@@ -22,18 +22,18 @@
 
   - name: Delete current nginx default
     file:
-      path: {{ nginx_default }}
+      path: "{{ nginx_default }}"
       state: absent
   
   - name: Create nginx default
     file:
-      path: {{ nginx_default }}
+      path: "{{ nginx_default }}"
       state: touch
       mode: 0644
   
   - name: Change nginx default
     blockinfile:
-      path: {{ nginx_default }}
+      path: "{{ nginx_default }}"
       block: |
         server {
           listen 80;
@@ -73,9 +73,11 @@
 # Configuration so we can connect to the database
   - name: Exporting the DB_HOST
     become_user: root
-    shell: |
-      pm2 kill
-      export DB_HOST=mongodb://192.168.33.11:27017/posts >> ~/.bashrc
+    blockinfile:
+      path: ~/.bashrc
+      backup: yes
+      block: |
+        "DB_HOST=192.168.33.11:27017/posts"
   
   - name: Installing node prerequisites and seeding from the database
     shell: |

@@ -20,19 +20,19 @@
 
   - name: Delete MongoDB configuration file
     file:
-      path: {{ mongodb_default }}
+      path: "{{ mongodb_default }}"
       state: absent
 
   - name: Create MongoDB configuration file
     file:
-      path: {{ mongodb_default }}
+      path: "{{ mongodb_default }}"
       state: touch
       mode: u=rw,g=r,o=r
 
 
   - name: Addding in our MongoDB configuration
     blockinfile:
-      path: {{ mongodb_default }}
+      path: "{{ mongodb_default }}"
       block: |
         # mongodb.conf
         storage:
