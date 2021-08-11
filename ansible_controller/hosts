@@ -3,3 +3,6 @@
 
 [db]
 192.168.33.11 ansible_connection=ssh ansible_ssh_user=vagrant ansible_ssh_pass=vagrant
+
+[aws]
+ec2-instance ansible_host=54.246.34.204 ansible_user=ubuntu ansible_ssh_private_key_file=~/.ssh/eng89_offline
